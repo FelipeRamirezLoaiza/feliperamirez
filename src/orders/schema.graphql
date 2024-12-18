@@ -1,0 +1,22 @@
+type Query {
+  getOrders: ResponseGetOrders
+  getOrder(id: Int!): Order
+}
+
+type Mutation {
+  createOrder(userId: Int!, total: Float!): Order!
+  updateOrder(id: Int!, total: Float): Order!
+  deleteOrder(id: Int!): Boolean!
+}
+
+type Order {
+  id: Int!
+  date: String!
+  total: Float!
+  userId: Int!
+}
+
+type ResponseGetOrders {
+  data: [Order]
+  msg: String
+}

@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Cambiar según tu base de datos
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          Int             @id @default(autoincrement())
+  name        String
+  price       Float
+  details     ProductDetail   @relation("ProductDetail", fields: [detailId], references: [id]) // Relación uno a uno
+  detailId    Int             @unique // Llave foránea para ProductDetail
+  categories  Category[]      @relation("ProductCategories") // Relación muchos a muchos con Category
+  orders      Order[]         @relation("OrderProducts") // Relación muchos a muchos con Order
+}
+
+model ProductDetail {
+  id          Int        @id @default(autoincrement())
+  description String
+  product     Product?   @relation("ProductDetail") // Relación uno a uno, ahora opcional
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String
+  products    Product[]  @relation("ProductCategories") // Relación muchos a muchos con Product
+}
+
+model Order {
+  id       Int        @id @default(autoincrement())
+  userId   Int
+  user     User       @relation(fields: [userId], references: [id]) // Relación con User
+  products Product[]  @relation("OrderProducts") // Relación muchos a muchos con Product
+  total    Float
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  password    String
+  role        Role         @default(CLIENT) // Roles: admin o cliente
+  profile     UserProfile? @relation("UserProfile") // Relación uno a uno (sin los parámetros fields y references)
+  orders      Order[]      @relation // Relación uno a muchos con Order
+}
+
+model UserProfile {
+  id      Int    @id @default(autoincrement())
+  address String
+  phone   String
+  userId  Int    @unique // Llave foránea única para User
+  user    User   @relation("UserProfile", fields: [userId], references: [id]) // Aquí se definen los campos 'fields' y 'references'
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+
+
